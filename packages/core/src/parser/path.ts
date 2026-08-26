@@ -117,7 +117,7 @@ export class ResourcePathParser {
     this.skipWhitespace()
 
     const keyItems: Array<{ name: string | null; value: Expression; span: Span }> = []
-    let isFunctionCall = false
+    let hasNamedKey = false
 
     // Try to parse key(s) or function arguments
     while (this.input[this.pos] !== ')' && this.pos < this.input.length) {
@@ -134,14 +134,13 @@ export class ResourcePathParser {
         const valueStr = this.readExprValue()
         const valueExpr = parseExpressionSafe(valueStr)
         keyItems.push({ name: maybeName, value: valueExpr, span: { start: itemStart, end: this.pos } })
-        isFunctionCall = false
+        hasNamedKey = true
       } else {
-        // Unnamed key or function arg; rewind and parse as expression
+        // Unnamed key; rewind and parse as expression
         this.pos = itemStart
         const valueStr = this.readExprValue()
         const valueExpr = parseExpressionSafe(valueStr)
         keyItems.push({ name: null, value: valueExpr, span: { start: itemStart, end: this.pos } })
-        isFunctionCall = keyItems.length === 1 // first item, no name = likely function
       }
 
       this.skipWhitespace()
@@ -157,23 +156,8 @@ export class ResourcePathParser {
       this.pos++
     }
 
-    if (isFunctionCall && keyItems.length > 0) {
-      // Function call
-      const args: FunctionArg[] = keyItems.map((item, i) => ({
-        kind: 'FunctionArg',
-        name: item.name,
-        value: item.value,
-        span: item.span,
-      }))
-      return {
-        kind: 'Function',
-        qualifiedName: ident,
-        args,
-        span: { start, end: this.pos },
-      }
-    }
-
-    // Key segment
+    // In OData path parsing, (...) is always a key, not a function call
+    // (functions appear in $filter and other contexts, not in the path)
     return {
       kind: 'Key',
       keys: keyItems,
