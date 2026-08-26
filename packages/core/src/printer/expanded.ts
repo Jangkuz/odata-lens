@@ -222,10 +222,10 @@ function printExpandItemExpanded(item: ExpandItem, indent: string): string {
   if (item.ref) result += '/$ref'
   if (item.count) result += '/$count'
 
-  if (item.options.length > 0) {
+  if (item.options && item.options.length > 0) {
     result += ' (\n'
     for (let i = 0; i < item.options.length; i++) {
-      const opt = item.options[i]
+      const opt = item.options[i] as any
       const isLast = i === item.options.length - 1
       const optStr = printOptionExpanded(opt)
       const lines = optStr.split('\n')

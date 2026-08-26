@@ -1,21 +1,38 @@
 :root {
   --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
   --text-primary: #1a1a1a;
-  --border-color: #e0e0e0;
+  --text-secondary: #666;
+  --border-color: #ddd;
   --accent: #0066cc;
+  --accent-light: #e6f0ff;
+  --error: #d32f2f;
+  --warning: #f57f17;
+  --success: #388e3c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
     --text-primary: #ffffff;
-    --border-color: #333333;
+    --text-secondary: #ccc;
+    --border-color: #444;
     --accent: #4d9fff;
+    --accent-light: #1a3a52;
+    --error: #f44336;
+    --warning: #ff9800;
+    --success: #66bb6a;
   }
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 body {
@@ -36,28 +53,174 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: var(--bg-primary);
 }
 
-header {
+.app-header {
   border-bottom: 1px solid var(--border-color);
-  padding: 2rem;
-  text-align: center;
+  padding: 1.5rem 2rem;
+  background: var(--bg-secondary);
 }
 
-header h1 {
+.app-header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.app-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
-header p {
-  margin: 0.5rem 0 0 0;
+.app-header p {
+  margin: 0.25rem 0 0 0;
   opacity: 0.7;
+  font-size: 0.95rem;
 }
 
-main {
+.app-main {
   flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--border-color);
+}
+
+.editor-pane,
+.output-pane {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  flex-direction: column;
+  background: var(--bg-primary);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editor-label,
+.output-label {
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.editor-textarea {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.editor-textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.output-pane {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.output-content {
+  flex: 1;
+  padding: 1rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.output-text {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.compact-output {
+  padding: 1rem;
+  background: var(--accent-light);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  word-break: break-all;
+}
+
+.diagnostics-panel {
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  max-height: 200px;
+  overflow: auto;
+}
+
+.diagnostics-label {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.diagnostics-list {
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+}
+
+.diagnostic {
+  padding: 0.5rem 0.75rem;
+  margin: 0.25rem 0;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  border-left: 3px solid;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.diagnostic-error {
+  border-left-color: var(--error);
+  background: rgba(211, 47, 47, 0.1);
+  color: var(--error);
+}
+
+.diagnostic-warning {
+  border-left-color: var(--warning);
+  background: rgba(245, 127, 23, 0.1);
+  color: var(--warning);
+}
+
+.diagnostic-info {
+  border-left-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.diagnostic-code {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.diagnostic-message {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+
+  .output-pane {
+    display: none;
+  }
 }
