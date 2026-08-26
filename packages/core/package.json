@@ -1,0 +1,21 @@
+{
+  "name": "odata-lens-core",
+  "version": "0.0.0",
+  "description": "OData V4 parser, printer, explainer, and validator",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {}
+}

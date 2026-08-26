@@ -1,0 +1,29 @@
+{
+  "name": "odata-lens",
+  "version": "0.0.0",
+  "description": "Paste, format, collapse, and explain OData V4 queries",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/core",
+    "packages/app"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w odata-lens-app",
+    "build": "npm run build -w odata-lens-app",
+    "typecheck": "tsc --project packages/core/tsconfig.json --noEmit && tsc --project packages/app/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "fast-check": "^3.16.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
