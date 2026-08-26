@@ -35,7 +35,8 @@ export function parse(input: string): ParseResult {
   // Split into components: serviceRoot, path, query, fragment
   const { serviceRoot, pathPart, queryPart, fragmentPart } = splitUrl(trimmed)
 
-  let pathSpan = { start: (serviceRoot?.length ?? 0), end: (serviceRoot?.length ?? 0) + pathPart.length }
+  const serviceRootLen = serviceRoot?.length ?? 0
+  let pathSpan = { start: serviceRootLen, end: serviceRootLen + pathPart.length }
   let querySpan = { start: pathSpan.end + 1, end: pathSpan.end + 1 + queryPart.length }
 
   // Decode and parse the path
