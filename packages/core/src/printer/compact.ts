@@ -51,7 +51,18 @@ function printResourcePath(path: ResourcePath): string {
     return ''
   }
 
-  return path.segments.map(printPathSegment).join('/')
+  // Join segments with /, but Key segments are special - they attach to the previous segment
+  let result = ''
+  for (let i = 0; i < path.segments.length; i++) {
+    const seg = path.segments[i]
+    if (i > 0 && seg.kind !== 'Key') {
+      result += '/'
+    } else if (i > 0) {
+      // Key segment - no / before it
+    }
+    result += printPathSegment(seg)
+  }
+  return result
 }
 
 function printPathSegment(seg: PathSegment): string {

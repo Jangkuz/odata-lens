@@ -80,116 +80,10 @@ export class ExpressionParser {
   }
 
   private parseExpression(minPrec: number): Expression {
-    let token = this.current()
-    if (!token) return this.makeUnknown('Unexpected end of input', 0, 0)
+    // Parse prefix (left-hand side)
+    let left = this.parsePrefix()
 
-    // Check for token-kind-based handlers
-    if (token.kind === 'paren' && token.value === '(') {
-      const left = this.prefixParen(token)
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    if (token.kind === 'bracket') {
-      const left = this.prefixBracketCollection(token)
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    if (token.kind === 'star') {
-      const left = this.prefixStar(token)
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    if (token.kind === 'string') {
-      const lit = parseLiteral(token.value, 'string', token.start, token.end)
-      this.advance()
-      let left = lit as Expression
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    if (token.kind === 'number') {
-      const lit = parseLiteral(token.value, 'number', token.start, token.end)
-      this.advance()
-      let left = lit as Expression
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    if (token.kind === 'guid') {
-      const lit = parseLiteral(token.value, 'guid', token.start, token.end)
-      this.advance()
-      let left = lit as Expression
-      while (this.pos < this.tokens.length) {
-        const nextToken = this.current()
-        if (!nextToken) break
-        const nextOp = nextToken.value.toLowerCase()
-        const nextPrec = PRECEDENCE[nextOp] ?? -1
-        if (nextPrec < minPrec || !this.infixFns.has(nextOp)) break
-        const infixFn = this.infixFns.get(nextOp)
-        if (!infixFn) break
-        left = infixFn(left, nextToken)
-      }
-      return left
-    }
-
-    const prefixFn = this.prefixFns.get(token.value.toLowerCase())
-    if (!prefixFn) {
-      const unknown = this.makeUnknown(`Unexpected token: ${token.value}`, token.start, token.end)
-      this.advance()
-      return unknown
-    }
-
-    let left = prefixFn(token)
-    this.advance()
-
+    // Parse infix operators (right-associative)
     while (this.pos < this.tokens.length) {
       const nextToken = this.current()
       if (!nextToken) break
@@ -208,6 +102,89 @@ export class ExpressionParser {
     }
 
     return left
+  }
+
+  private parsePrefix(): Expression {
+    const token = this.current()
+    if (!token) return this.makeUnknown('Unexpected end of input', 0, 0)
+
+    let left: Expression
+
+    // Handle by token kind first
+    switch (token.kind) {
+      case 'paren':
+        left = this.prefixParen(token)
+        return left
+
+      case 'bracket':
+        left = this.prefixBracketCollection(token)
+        return left
+
+      case 'star':
+        left = this.prefixStar(token)
+        this.advance()
+        return left
+
+      case 'string': {
+        const lit = parseLiteral(token.value, 'string', token.start, token.end)
+        this.advance()
+        return lit
+      }
+
+      case 'number': {
+        const lit = parseLiteral(token.value, 'number', token.start, token.end)
+        this.advance()
+        return lit
+      }
+
+      case 'guid': {
+        const lit = parseLiteral(token.value, 'guid', token.start, token.end)
+        this.advance()
+        return lit
+      }
+
+      case 'ident': {
+        const lower = token.value.toLowerCase()
+
+        // Check for unary operators and keywords registered by value
+        if (lower === 'not') {
+          return this.prefixUnary(token, 'not')
+        }
+
+        if (lower === '-') {
+          return this.prefixUnary(token, '-')
+        }
+
+        // Check for special constants
+        if (lower === 'true') {
+          this.advance()
+          return { kind: 'Boolean', value: true, span: { start: token.start, end: token.end } }
+        }
+
+        if (lower === 'false') {
+          this.advance()
+          return { kind: 'Boolean', value: false, span: { start: token.start, end: token.end } }
+        }
+
+        if (lower === 'null') {
+          this.advance()
+          return { kind: 'Null', span: { start: token.start, end: token.end } }
+        }
+
+        // Lambda or property path
+        if (lower === 'any' || lower === 'all') {
+          return this.parseLambda(token, lower as 'any' | 'all')
+        }
+
+        // Property path or function call
+        return this.prefixIdent(token)
+      }
+
+      default:
+        const unknown = this.makeUnknown(`Unexpected token: ${token.value}`, token.start, token.end)
+        this.advance()
+        return unknown
+    }
   }
 
   private prefixIdent(token: Token): Expression {

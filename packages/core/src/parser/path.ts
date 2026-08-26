@@ -21,11 +21,17 @@ export class ResourcePathParser {
       this.skipWhitespace()
       if (this.pos >= this.input.length) break
 
-      const start = this.pos
       const segment = this.parseSegment()
       if (!segment) break
 
       this.segments.push(segment)
+
+      // If this is the first segment (EntitySet) and is followed by (, also parse the key
+      if (this.segments.length === 1 && this.segments[0].kind === 'EntitySet' && this.input[this.pos] === '(') {
+        const ident = this.segments[0].name
+        const keySeg = this.parseKeyOrFunction(this.segments[0].span.start, ident)
+        this.segments.push(keySeg)
+      }
 
       // Expect / or end
       this.skipWhitespace()
@@ -64,38 +70,10 @@ export class ResourcePathParser {
 
     this.skipWhitespace()
 
-    // Check for what follows the identifier
-    if (this.input[this.pos] === '(') {
-      // Could be key(s) or function call
-      return this.parseKeyOrFunction(start, ident)
-    }
+    // Don't parse keys or casts here; just classify the identifier
+    // The caller (parse()) will handle keys after an EntitySet
 
-    if (this.input[this.pos] === '/') {
-      // Look ahead for cast: /Ns.Type or just another segment
-      const next = this.peekIdent()
-      if (next && next.includes('.')) {
-        // It's a cast
-        this.pos++ // consume /
-        const cast = this.readIdent() ?? 'unknown'
-        return {
-          kind: 'TypeCast',
-          qualifiedName: cast,
-          span: { start, end: this.pos },
-        }
-      }
-
-      // Assume it's a navigation or property segment based on heuristic
-      // Properties typically end here; navigation properties are followed by more path
-      // For now, classify as Navigation (could be refined with metadata)
-      return {
-        kind: 'Navigation',
-        name: ident,
-        span: { start, end: this.pos },
-      }
-    }
-
-    // Just an identifier; could be entity set, property, or nav property
-    // Default to entity set if first; otherwise property/navigation
+    // Just an identifier; classify based on position
     if (this.segments.length === 0) {
       return {
         kind: 'EntitySet',
@@ -104,7 +82,7 @@ export class ResourcePathParser {
       }
     }
 
-    // Heuristic: assume it's a property first, parser can refine
+    // Could be property or navigation; default to Property
     return {
       kind: 'Property',
       name: ident,
