@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { Toolbar } from './components/Toolbar'
+import { TreeView } from './panels/TreeView'
+import { ExplainPanel } from './panels/ExplainPanel'
 import { useQueryState } from './state/useQueryState'
 import { getHashQuery, setHashQuery, onHashChange } from './state/hashState'
 import { useCodeMirror } from './editor/useCodeMirror'
@@ -14,6 +16,7 @@ export default function App() {
   const [query, setQuery] = useQueryState(getHashQuery())
   const editorContainerRef = useRef<HTMLDivElement>(null)
   const [outputMode, setOutputMode] = useState<'expanded' | 'compact'>('expanded')
+  const [rightPanelTab, setRightPanelTab] = useState<'tree' | 'explain'>('tree')
 
   // Load query from hash on mount and when hash changes
   useEffect(() => {
@@ -82,33 +85,60 @@ export default function App() {
           />
         </div>
 
-        <div className="output-pane">
-          <div className="output-label">
-            {outputMode === 'expanded' ? '📋 Formatted' : '🔗 URL'}
-          </div>
-          <div className="output-content">
-            {outputMode === 'expanded' ? (
-              <pre className="output-text">{query.expanded || 'Paste a query to format it...'}</pre>
-            ) : (
-              <div className="compact-output">
-                <code className="output-text">{query.compact || 'Paste a query to collapse it...'}</code>
+        <div className="middle-panes">
+          <div className="output-pane">
+            <div className="output-label">
+              {outputMode === 'expanded' ? '📋 Formatted' : '🔗 URL'}
+            </div>
+            <div className="output-content">
+              {outputMode === 'expanded' ? (
+                <pre className="output-text">{query.expanded || 'Paste a query to format it...'}</pre>
+              ) : (
+                <div className="compact-output">
+                  <code className="output-text">{query.compact || 'Paste a query to collapse it...'}</code>
+                </div>
+              )}
+            </div>
+
+            {query.parseResult?.diagnostics && query.parseResult.diagnostics.length > 0 && (
+              <div className="diagnostics-panel">
+                <div className="diagnostics-label">Issues ({query.parseResult.diagnostics.length})</div>
+                <ul className="diagnostics-list">
+                  {query.parseResult.diagnostics.map((diag: any, i: number) => (
+                    <li key={i} className={`diagnostic diagnostic-${diag.severity}`}>
+                      <span className="diagnostic-code">{diag.code}</span>
+                      <span className="diagnostic-message">{diag.message}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
 
-          {query.parseResult?.diagnostics && query.parseResult.diagnostics.length > 0 && (
-            <div className="diagnostics-panel">
-              <div className="diagnostics-label">Issues ({query.parseResult.diagnostics.length})</div>
-              <ul className="diagnostics-list">
-                {query.parseResult.diagnostics.map((diag: any, i: number) => (
-                  <li key={i} className={`diagnostic diagnostic-${diag.severity}`}>
-                    <span className="diagnostic-code">{diag.code}</span>
-                    <span className="diagnostic-message">{diag.message}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="right-panels">
+            <div className="tabs-header">
+              <div className="tabs">
+                <button
+                  className={`tab ${rightPanelTab === 'tree' ? 'active' : ''}`}
+                  onClick={() => setRightPanelTab('tree')}
+                >
+                  Tree
+                </button>
+                <button
+                  className={`tab ${rightPanelTab === 'explain' ? 'active' : ''}`}
+                  onClick={() => setRightPanelTab('explain')}
+                >
+                  Explain
+                </button>
+              </div>
             </div>
-          )}
+            <div className="tree-view-container" style={{ display: rightPanelTab === 'tree' ? 'flex' : 'none' }}>
+              <TreeView ast={query.parseResult?.ast || null} />
+            </div>
+            <div className="explain-view-container" style={{ display: rightPanelTab === 'explain' ? 'flex' : 'none' }}>
+              <ExplainPanel parseResult={query.parseResult || null} />
+            </div>
+          </div>
         </div>
       </main>
     </div>
