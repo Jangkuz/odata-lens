@@ -1,0 +1,61 @@
+.tree-view {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  font-size: 0.9rem;
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.tree-placeholder {
+  color: var(--text-secondary);
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.tree-node {
+  margin: 0.25rem 0;
+}
+
+.tree-node-header {
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 3px;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tree-node-header:hover {
+  background: var(--accent-light);
+}
+
+.tree-toggle {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.tree-kind {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.tree-value {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.tree-count {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.tree-node-children {
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--border-color);
+}
