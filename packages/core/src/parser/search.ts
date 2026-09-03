@@ -80,12 +80,12 @@ export class SearchParser {
     if (this.input[this.pos] === '"') {
       this.pos++ // consume opening "
       const phrase: string[] = []
-      while (this.pos < this.input.length && this.input[this.pos] !== '"') {
-        if (this.input[this.pos] === '\\' && this.input[this.pos + 1] === '"') {
+      while (this.pos < this.input.length && this.input[this.pos]! !== '"') {
+        if (this.input[this.pos]! === '\\' && this.input[this.pos + 1] === '"') {
           phrase.push('"')
           this.pos += 2
         } else {
-          phrase.push(this.input[this.pos])
+          phrase.push(this.input[this.pos]!)
           this.pos++
         }
       }
@@ -102,8 +102,8 @@ export class SearchParser {
 
     // Bare term (up to whitespace or AND/OR/NOT)
     const term: string[] = []
-    while (this.pos < this.input.length && !/\s/.test(this.input[this.pos])) {
-      term.push(this.input[this.pos])
+    while (this.pos < this.input.length && !/\s/.test(this.input[this.pos]!)) {
+      term.push(this.input[this.pos]!)
       this.pos++
     }
 
@@ -131,7 +131,7 @@ export class SearchParser {
     if (word !== kw.toUpperCase()) return false
 
     // Check word boundary after
-    if (end < this.input.length && /[a-zA-Z0-9_]/.test(this.input[end])) return false
+    if (end < this.input.length && /[a-zA-Z0-9_]/.test(this.input[end]!)) return false
 
     this.pos = end
     this.skipWhitespace()
@@ -139,7 +139,7 @@ export class SearchParser {
   }
 
   private skipWhitespace(): void {
-    while (this.pos < this.input.length && /\s/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /\s/.test(this.input[this.pos]!)) {
       this.pos++
     }
   }

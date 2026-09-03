@@ -148,7 +148,7 @@ export class ExpandParser {
 
   private readIdent(): string | null {
     const start = this.pos
-    while (this.pos < this.input.length && /[a-zA-Z0-9_$]/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /[a-zA-Z0-9_$]/.test(this.input[this.pos]!)) {
       this.pos++
     }
     return this.pos > start ? this.input.slice(start, this.pos) : null
@@ -198,7 +198,7 @@ export class ExpandParser {
   }
 
   private skipWhitespace(): void {
-    while (this.pos < this.input.length && /\s/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /\s/.test(this.input[this.pos]!)) {
       this.pos++
     }
   }

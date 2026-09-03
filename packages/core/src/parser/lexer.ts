@@ -152,7 +152,7 @@ export class Lexer {
    * Skip whitespace tokens; return the aggregated whitespace token.
    */
   private scanWhitespace(): Token {
-    while (this.pos < this.input.length && /\s/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /\s/.test(this.input[this.pos]!)) {
       this.pos++
     }
     return { kind: 'ws', value: this.input.slice(this.start, this.pos), start: this.start, end: this.pos }
@@ -165,7 +165,7 @@ export class Lexer {
     this.advance() // consume opening '
     const chars: string[] = []
     while (this.pos < this.input.length) {
-      const ch = this.input[this.pos]
+      const ch = this.input[this.pos]!
       if (ch === "'") {
         this.advance()
         // Check for ''
@@ -189,7 +189,7 @@ export class Lexer {
    * Scan identifier or keyword.
    */
   private scanIdent(): Token {
-    while (this.pos < this.input.length && (this.isAlphaNum(this.input[this.pos]) || this.input[this.pos] === '_')) {
+    while (this.pos < this.input.length && (this.isAlphaNum(this.input[this.pos]!) || this.input[this.pos]! === '_')) {
       this.pos++
     }
     return { kind: 'ident', value: this.input.slice(this.start, this.pos), start: this.start, end: this.pos }
@@ -202,12 +202,12 @@ export class Lexer {
     if (this.peek() === '-') {
       this.advance()
     }
-    while (this.pos < this.input.length && this.isDigit(this.input[this.pos])) {
+    while (this.pos < this.input.length && this.isDigit(this.input[this.pos]!)) {
       this.pos++
     }
     if (this.peek() === '.' && this.isDigit(this.peek(1))) {
       this.advance()
-      while (this.pos < this.input.length && this.isDigit(this.input[this.pos])) {
+      while (this.pos < this.input.length && this.isDigit(this.input[this.pos]!)) {
         this.pos++
       }
     }
@@ -216,7 +216,7 @@ export class Lexer {
       if (this.peek() === '+' || this.peek() === '-') {
         this.advance()
       }
-      while (this.pos < this.input.length && this.isDigit(this.input[this.pos])) {
+      while (this.pos < this.input.length && this.isDigit(this.input[this.pos]!)) {
         this.pos++
       }
     }

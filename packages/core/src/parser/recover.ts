@@ -16,7 +16,7 @@ export function skipToSafeBoundary(input: string, startPos: number, boundaries: 
   let inString = false
 
   while (pos < input.length) {
-    const ch = input[pos]
+    const ch = input[pos]!
 
     if (inString) {
       if (ch === "'") {
@@ -76,7 +76,7 @@ export function createDiagnostic(
     message,
     span,
     severity,
-    hint,
+    ...(hint !== undefined ? { hint } : {}),
   }
 }
 

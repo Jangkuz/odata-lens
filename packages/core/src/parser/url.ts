@@ -111,8 +111,8 @@ function splitUrl(input: string): { serviceRoot: string | null; pathPart: string
     // Service root typically looks like: https://host/odata/v4/
     const match = beforeQuery.match(/^(https?:\/\/[^/]+(?:\/[^/()]+)*)\/(.*)$/)
     if (match) {
-      serviceRoot = match[1] + '/'
-      pathPart = match[2]
+      serviceRoot = match[1]! + '/'
+      pathPart = match[2]!
     }
   }
 

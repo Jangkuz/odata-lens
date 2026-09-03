@@ -37,7 +37,7 @@ export function printExpanded(ast: ODataUrl): string {
   if (ast.options.length > 0) {
     lines.push('?')
     for (let i = 0; i < ast.options.length; i++) {
-      const opt = ast.options[i]
+      const opt = ast.options[i]!
       const isLast = i === ast.options.length - 1
       const sep = isLast ? '' : '&'
       const optLine = printOptionExpanded(opt)
@@ -149,7 +149,7 @@ function printOptionExpanded(opt: QueryOption): string {
       // Multi-line, indented format for $expand
       const lines: string[] = ['$expand = (']
       for (let i = 0; i < opt.items.length; i++) {
-        const item = opt.items[i]
+        const item = opt.items[i]!
         const isLast = i === opt.items.length - 1
         const sep = isLast ? '' : ','
         const itemStr = printExpandItemExpanded(item, '  ')

@@ -286,12 +286,12 @@ function parseOrderBy(value: string, span: Span): any[] {
     const match = trimmed.match(/^(.+?)\s+(asc|desc)$/)
 
     if (match) {
-      const [, exprStr, dir] = match
-      const expr = parseExpression(exprStr)
+      const [, exprStr, dir] = match!
+      const expr = parseExpression(exprStr!)
       items.push({
         kind: 'OrderByItem',
         expr,
-        direction: dir as 'asc' | 'desc',
+        direction: dir! as 'asc' | 'desc',
         span,
       })
     } else {
@@ -319,12 +319,12 @@ function parseCompute(value: string, span: Span): any[] {
     const match = trimmed.match(/^(.+?)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)$/i)
 
     if (match) {
-      const [, exprStr, alias] = match
-      const expr = parseExpression(exprStr)
+      const [, exprStr, alias] = match!
+      const expr = parseExpression(exprStr!)
       items.push({
         kind: 'ComputeItem',
         expr,
-        alias,
+        alias: alias!,
         span,
       })
     }

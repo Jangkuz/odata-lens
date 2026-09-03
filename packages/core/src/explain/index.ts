@@ -47,7 +47,7 @@ export function summarizeQuery(ast: ODataUrl): string {
   // Resource
   const resourceNames = ast.path.segments.map((s) => (s.kind === 'EntitySet' ? s.name : '')).filter(Boolean)
   if (resourceNames.length > 0) {
-    parts.push(resourceNames[0])
+    parts.push(resourceNames[0]!)
   }
 
   // Count conditions

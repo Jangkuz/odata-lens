@@ -30,7 +30,7 @@ export function parseSelect(value: string, span: { start: number; end: number })
         // Could have options in parens, e.g., nav(filter=...)
         const match = propPart.match(/^([a-zA-Z_$][a-zA-Z0-9_$]*)(\(.*\))?$/)
         if (match) {
-          const name = match[1]
+          const name = match[1]!
           segments.push({ name: name.toLowerCase(), span: { start: 0, end: 0 } })
         } else {
           segments.push({ name: propPart.toLowerCase(), span: { start: 0, end: 0 } })

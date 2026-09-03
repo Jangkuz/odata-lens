@@ -27,9 +27,9 @@ export class ResourcePathParser {
       this.segments.push(segment)
 
       // If this is the first segment (EntitySet) and is followed by (, also parse the key
-      if (this.segments.length === 1 && this.segments[0].kind === 'EntitySet' && this.input[this.pos] === '(') {
-        const ident = this.segments[0].name
-        const keySeg = this.parseKeyOrFunction(this.segments[0].span.start, ident)
+      if (this.segments.length === 1 && this.segments[0]!.kind === 'EntitySet' && this.input[this.pos] === '(') {
+        const ident = this.segments[0]!.name
+        const keySeg = this.parseKeyOrFunction(this.segments[0]!.span.start, ident)
         this.segments.push(keySeg)
       }
 
@@ -145,7 +145,7 @@ export class ResourcePathParser {
 
   private readIdent(): string | null {
     const start = this.pos
-    while (this.pos < this.input.length && /[a-zA-Z0-9_$]/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /[a-zA-Z0-9_$]/.test(this.input[this.pos]!)) {
       this.pos++
     }
     return this.pos > start ? this.input.slice(start, this.pos) : null
@@ -208,7 +208,7 @@ export class ResourcePathParser {
   }
 
   private skipWhitespace(): void {
-    while (this.pos < this.input.length && /\s/.test(this.input[this.pos])) {
+    while (this.pos < this.input.length && /\s/.test(this.input[this.pos]!)) {
       this.pos++
     }
   }

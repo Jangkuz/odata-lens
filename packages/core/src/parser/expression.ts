@@ -239,7 +239,7 @@ export class ExpressionParser {
             this.advance()
             const lastIdx = segments.length - 1
             if (lastIdx >= 0) {
-              segments[lastIdx].cast = castName
+              segments[lastIdx]!.cast = castName
             }
           }
         } else {
@@ -496,7 +496,7 @@ export class ExpressionParser {
 
   private prevEnd(): number {
     if (this.pos > 0) {
-      return this.tokens[this.pos - 1].end
+      return this.tokens[this.pos - 1]!.end
     }
     return 0
   }
