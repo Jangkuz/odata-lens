@@ -125,6 +125,18 @@ export class ExpressionParser {
         this.advance()
         return left
 
+      case 'op': {
+        // Check if this op has a registered prefix handler (e.g., 'not', 'sub')
+        const prefixFn = this.prefixFns.get(token.value.toLowerCase())
+        if (prefixFn) {
+          return prefixFn(token)
+        }
+        // Not a valid prefix op; fall through to default error
+        const unknown = this.makeUnknown(`Unexpected token: ${token.value}`, token.start, token.end)
+        this.advance()
+        return unknown
+      }
+
       case 'string': {
         const lit = parseLiteral(token.value, 'string', token.start, token.end)
         this.advance()
@@ -188,31 +200,31 @@ export class ExpressionParser {
   }
 
   private prefixIdent(token: Token): Expression {
-    const ident = token.value.toLowerCase()
+    const lower = token.value.toLowerCase()
 
     // Check for special constants
-    if (ident === 'true' || ident === 'false') {
+    if (lower === 'true' || lower === 'false') {
       this.advance()
       return {
         kind: 'Boolean',
-        value: ident === 'true',
+        value: lower === 'true',
         span: { start: token.start, end: token.end },
       }
     }
 
-    if (ident === 'null') {
+    if (lower === 'null') {
       this.advance()
       return { kind: 'Null', span: { start: token.start, end: token.end } }
     }
 
     // Check for lambda: any/all
-    if (ident === 'any' || ident === 'all') {
-      return this.parseLambda(token, ident as 'any' | 'all')
+    if (lower === 'any' || lower === 'all') {
+      return this.parseLambda(token, lower as 'any' | 'all')
     }
 
     // Property path or function call
     const start = token.start
-    const segments: PathStep[] = [{ name: ident, span: { start: token.start, end: token.end } }]
+    const segments: PathStep[] = [{ name: token.value, span: { start: token.start, end: token.end } }]
     this.advance()
 
     // Try to parse more segments (casts, navigation)
@@ -226,8 +238,7 @@ export class ExpressionParser {
         if (!nextToken) break
 
         if (nextToken.kind === 'ident') {
-          const segName = nextToken.value.toLowerCase()
-          segments.push({ name: segName, span: { start: nextToken.start, end: nextToken.end } })
+          segments.push({ name: nextToken.value, span: { start: nextToken.start, end: nextToken.end } })
           this.advance()
         } else if (nextToken.value === '(') {
           // /cast(...)
@@ -332,7 +343,7 @@ export class ExpressionParser {
       const token = this.current()
       if (!token || token.kind !== 'ident') break
 
-      segments.push({ name: token.value.toLowerCase(), span: { start: token.start, end: token.end } })
+      segments.push({ name: token.value, span: { start: token.start, end: token.end } })
       this.advance()
 
       if (this.current()?.value === '/') {
@@ -477,7 +488,7 @@ export class ExpressionParser {
 
     if (next.kind === 'ident') {
       const segments: PathStep[] = [...(left.kind === 'Path' ? left.segments : [{ name: '?', span: { start: 0, end: 0 } }])]
-      segments.push({ name: next.value.toLowerCase(), span: { start: next.start, end: next.end } })
+      segments.push({ name: next.value, span: { start: next.start, end: next.end } })
       this.advance()
 
       return {

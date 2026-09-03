@@ -19,12 +19,22 @@ export function encodePathComponent(str: string): string {
 
 /**
  * Encode a string for use in a query option value.
- * Similar to path but preserves some chars like = and &.
+ * Use encodeURIComponent as the safe base (escapes &, #, %, space, etc.),
+ * then unescape OData delimiters that must stay literal.
+ * Preserve single quotes (they delimit OData string literals) and all OData syntax chars.
  */
 export function encodeQueryValue(str: string): string {
   return encodeURIComponent(str)
-    .replace(/!/g, '%21')
-    .replace(/'/g, '%27')
+    // Unescape OData syntax delimiters that must stay literal
+    .replace(/%2C/g, ',')  // comma: list/multi-value separator
+    .replace(/%2F/g, '/')  // slash: navigation/path separator
+    .replace(/%28/g, '(')  // left paren: options/args
+    .replace(/%29/g, ')')  // right paren: options/args
+    .replace(/%3A/g, ':')  // colon: namespace/enum separator
+    .replace(/%24/g, '$')  // dollar: option/system query prefix
+    .replace(/%3D/g, '=')  // equals: key/option assignment
+    .replace(/%40/g, '@')  // at-sign: parameter alias
+    .replace(/%27/g, "'")  // single quote: string literal delimiter (must stay literal per OData spec)
 }
 
 /**

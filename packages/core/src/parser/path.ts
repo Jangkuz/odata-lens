@@ -26,10 +26,11 @@ export class ResourcePathParser {
 
       this.segments.push(segment)
 
-      // If this is the first segment (EntitySet) and is followed by (, also parse the key
-      if (this.segments.length === 1 && this.segments[0]!.kind === 'EntitySet' && this.input[this.pos] === '(') {
-        const ident = this.segments[0]!.name
-        const keySeg = this.parseKeyOrFunction(this.segments[0]!.span.start, ident)
+      // After any EntitySet/Property/Navigation segment, check for a key (…)
+      const lastSeg = this.segments[this.segments.length - 1]!
+      if ((lastSeg.kind === 'EntitySet' || lastSeg.kind === 'Property' || lastSeg.kind === 'Navigation')
+        && this.input[this.pos] === '(') {
+        const keySeg = this.parseKeyOrFunction(lastSeg.span.start, lastSeg.name)
         this.segments.push(keySeg)
       }
 

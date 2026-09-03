@@ -117,7 +117,7 @@ export class ExpandParser {
       return null
     }
 
-    segments.push({ name: ident.toLowerCase(), span: { start, end: this.pos } })
+    segments.push({ name: ident, span: { start, end: this.pos } })
 
     // Read additional segments separated by /
     while (this.input[this.pos] === '/') {
@@ -132,7 +132,7 @@ export class ExpandParser {
       if (!ident) {
         break
       }
-      segments.push({ name: ident.toLowerCase(), span: { start: this.pos - ident.length, end: this.pos } })
+      segments.push({ name: ident, span: { start: this.pos - ident.length, end: this.pos } })
     }
 
     if (segments.length === 0) {
